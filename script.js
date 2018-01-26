@@ -1,42 +1,66 @@
-// Channel to connect to
-const channel = 'summit1g';
+const form = document.querySelector('form');
 const TwitchJS = window.TwitchJS;
 const messages = document.querySelector('#messages');
 const width = window.innerWidth / 2;
-const height = window.innerHeight;
+const height = window.innerHeight - (window.innerHeight * .1);
+const channelInput = form.querySelector('#channelInput');
 
-// Define client options
-var options = {
-  options: {
-    debug: false
-  },
-  connection: {
-    reconnect: true,
-    secure: true
-  },
-  channels: [`#${channel}`]
+const onSubmit = (event) => {
+  event.preventDefault();
+  const channel = channelInput.value;
+  form.style.display = 'none';
+
+  getEmoji(channel);
+  connectToChat(channel);
 };
 
-const client = new TwitchJS.client(options);
+const getEmoji = (channel) => {
+  twitchEmoji.add('summit1g', (err) => {
+    if (err) {
+      console.log("Error!");
+    } 
+  });
+}
 
-// Add listeners for events, e.g. a chat event
-client.on('chat', (channel, userstate, message, self) => {
-  // Add chat message to new span
-  const newSpan = document.createElement('span');
-  newSpan.innerHTML = message;
-  messages.appendChild(newSpan);
+const connectToChat = (channel) => {
+  // Define client options
+  const options = {
+    options: {
+      debug: false
+    },
+    connection: {
+      reconnect: true,
+      secure: true
+    },
+    channels: [`#${channel}`]
+  };
 
-  // Add styling to span
-  newSpan.style.color = "#"+((1<<24)*Math.random()|0).toString(16); // magic one liner for random colour
-  newSpan.style.fontSize = Math.floor((Math.random() * 50) + 1) + 'px';
-  newSpan.style.left = Math.floor((Math.random() * width) + 1) + 'px';
-  newSpan.style.top = Math.floor((Math.random() * height) + 1) + 'px';
+  const client = new TwitchJS.client(options);
 
-  // Hide message after 4 seconds 
-  setTimeout(function() {
-    newSpan.style.display = 'none';
-  }, 6000);
-});
+  // Add listeners for events, e.g. a chat event
+  client.on('chat', (channel, userstate, message, self) => {
+  
+    // Add chat message to new span
+    const newSpan = document.createElement('span');
+    const emojiMessage = twitchEmoji.parse(message);
+    newSpan.innerHTML = emojiMessage;
+    messages.appendChild(newSpan);
 
-// Finally, connect to the Twitch channel
-client.connect();
+    // Add styling to span
+    newSpan.style.color = "#"+((1<<24)*Math.random()|0).toString(16); // magic one liner for random colour
+    newSpan.style.fontSize = Math.floor((Math.random() * 50) + 12) + 'px';
+    newSpan.style.left = Math.floor((Math.random() * width) + 1) + 'px';
+    newSpan.style.top = Math.floor((Math.random() * height) + 20) + 'px';
+
+    // Hide message after 4 seconds 
+    setTimeout(function() {
+      newSpan.style.display = 'none';
+    }, 4000);
+  });
+
+  // Finally, connect to the Twitch channel
+  client.connect();
+}
+
+
+form.addEventListener('submit', onSubmit);
