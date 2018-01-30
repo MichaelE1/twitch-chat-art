@@ -15,7 +15,7 @@ const onSubmit = (event) => {
 };
 
 const getEmoji = (channel) => {
-  twitchEmoji.add('summit1g', (err) => {
+  twitchEmoji.add(channel, (err) => {
     if (err) {
       console.log("Error!");
     } 
